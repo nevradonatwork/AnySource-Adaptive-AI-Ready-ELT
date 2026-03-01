@@ -1,0 +1,30 @@
+layer,table_name,column_name,data_type,nullable,description,example_value,notes
+source,orders,order_id,INTEGER,NO,Unique order identifier,1001,Primary key of the source
+source,orders,customer_id,INTEGER,NO,Customer identifier,101,Foreign key to customer
+source,orders,customer_email,TEXT,NO,Customer email address,alice@example.com,
+source,orders,region,TEXT,NO,Sales region,EU,One of EU / US / APAC / LATAM
+source,orders,order_date,DATE,NO,Date the order was placed,2025-01-05,ISO format YYYY-MM-DD
+source,orders,product_id,TEXT,NO,Product identifier,PRD-A,
+source,orders,quantity,INTEGER,NO,Number of units ordered,2,Must be positive
+source,orders,unit_price,FLOAT,NO,Price per unit in USD,49.99,Must be positive
+source,orders,amount,FLOAT,NO,Total order amount,99.98,quantity * unit_price
+staging,stg_orders,order_id,TEXT,NO,Cleaned order identifier,1001,
+staging,stg_orders,customer_id,TEXT,NO,Cleaned customer identifier,101,
+staging,stg_orders,customer_email,TEXT,NO,Lowercased email,alice@example.com,
+staging,stg_orders,region,TEXT,NO,Uppercased region code,EU,
+staging,stg_orders,order_date,TEXT,NO,Validated order date,2025-01-05,
+staging,stg_orders,product_id,TEXT,NO,Product identifier,PRD-A,
+staging,stg_orders,quantity,FLOAT,NO,Numeric quantity,2.0,Coerced to numeric
+staging,stg_orders,unit_price,FLOAT,NO,Numeric unit price,49.99,Coerced to numeric
+staging,stg_orders,amount,FLOAT,NO,Numeric total amount,99.98,Coerced to numeric
+dimensions,dim_customer,customer_id,TEXT,NO,Customer identifier,101,Natural key
+dimensions,dim_customer,customer_email,TEXT,NO,Customer email,alice@example.com,Tracked for SCD2
+dimensions,dim_customer,region,TEXT,NO,Customer home region,EU,Tracked for SCD2
+dimensions,dim_customer,valid_from,DATE,NO,SCD2 record start date,2025-01-01,
+dimensions,dim_customer,valid_to,DATE,YES,SCD2 record end date,,NULL means currently active
+dimensions,dim_customer,is_current,INTEGER,NO,SCD2 active flag,1,1=active 0=expired
+facts,fct_sales,order_date,TEXT,NO,Order date,2025-01-05,Partition key
+facts,fct_sales,region,TEXT,NO,Sales region,EU,
+facts,fct_sales,total_amount,FLOAT,NO,Sum of order amounts for this date+region,189.95,
+facts,fct_sales,order_count,INTEGER,NO,Number of orders for this date+region,3,
+facts,fct_sales,total_quantity,FLOAT,NO,Sum of units ordered for this date+region,6.0,
